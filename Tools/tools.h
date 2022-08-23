@@ -39,6 +39,7 @@ public:
     void reset(const int& zoomValue);
 
     void setEditedImage(const QImage &newEditedImage);
+    const QImage &getEditedImage() const;
 };
 
 #endif // TOOLS_H

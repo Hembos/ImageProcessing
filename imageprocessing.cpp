@@ -11,8 +11,10 @@ ImageProcessing::~ImageProcessing()
 
 }
 
-void ImageProcessing::setOriginalImage(const QImage& image)
+void ImageProcessing::setOriginalImage(const QImage& image, const QString& fileName)
 {
+    this->fileName = fileName;
+
     tools.setEditedImage(image);
     filters.setFilteredImage(image);
 
@@ -41,4 +43,20 @@ void ImageProcessing::process(QString tool, QStringList params)
 void ImageProcessing::applyFilter(QString filter)
 {
     filters.exec(filter);
+}
+
+void ImageProcessing::saveImage()
+{
+    QStringList tokens = fileName.split('.');
+
+    tokens.insert(tokens.end() - 1, "Edited.");
+
+    QString newFileName{""};
+
+    for (const auto& token : tokens)
+    {
+        newFileName += token;
+    }
+
+    tools.getEditedImage().save(newFileName);
 }

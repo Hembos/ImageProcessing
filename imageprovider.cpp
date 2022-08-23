@@ -22,7 +22,7 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
 
         image = image.convertToFormat(QImage::Format_ARGB32);
 
-        imageProcessing.setOriginalImage(image);
+        imageProcessing.setOriginalImage(image, id);
     }
 
     return imageProcessing.getEditedImage();

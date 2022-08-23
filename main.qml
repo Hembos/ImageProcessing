@@ -33,6 +33,14 @@ Window {
                        }
                 }
             }
+
+            Button {
+                id: saveButton
+
+                text: "save"
+
+                onClicked: imageProcessing.saveImage();
+            }
         }
 
         Row {

@@ -7,6 +7,11 @@ void Tools::setEditedImage(const QImage &newEditedImage)
     editedImage = newEditedImage;
 }
 
+const QImage &Tools::getEditedImage() const
+{
+    return editedImage;
+}
+
 Tools::Tools()
 {
 
