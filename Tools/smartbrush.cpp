@@ -14,6 +14,8 @@ void SmartBrush::exec(const QStringList &params, std::unordered_set<MaskPoint, M
     int leftUpCornerX = params[0].toInt() - radius;
     int leftUpCornerY = params[1].toInt() - radius;
 
+    sensitivity = params[6].toFloat();
+
     sizeX = 2 * radius + 1;
     sizeY = sizeX;
 
@@ -44,7 +46,7 @@ void SmartBrush::exec(const QStringList &params, std::unordered_set<MaskPoint, M
 
 Matrix<double> SmartBrush::calcDensityField(const Matrix<double>& intensities)
 {
-    double eps = 1 - (0.8 + SENSITIVITY / 5);
+    double eps = 1 - (0.8 + sensitivity / 5);
 
     double threshold = intensities.getValue(sizeY / 2, sizeX / 2);
 

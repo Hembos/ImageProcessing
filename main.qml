@@ -115,20 +115,42 @@ Window {
                 }
             }
 
-            Button {
-                id: smartBrush
+            Column {
+                Button {
+                    id: smartBrush
 
-                text: "smartBrush"
+                    text: "smartBrush"
 
-                onClicked: toolChange("SmartBrush")
+                    onClicked: toolChange("SmartBrush")
+                }
+
+                SpinBox {
+                    id: smartBrushSens
+                    stepSize: 0.01
+                    minimumValue: 0
+                    maximumValue: 1
+                    decimals: 2
+                    value: 0.5
+                }
             }
 
-            Button {
-                id: chanVese
+            Column {
+                Button {
+                    id: chanVese
 
-                text: "chanVese"
+                    text: "chanVese"
 
-                onClicked: imageChange("ChanVese", [redInput.text, greenInput.text, blueInput.text, alphaInput.text])
+                    onClicked: imageChange("ChanVese", [redInput.text, greenInput.text, blueInput.text, alphaInput.text, chanVeseSens.value])
+                }
+
+                SpinBox {
+                    id: chanVeseSens
+                    stepSize: 0.01
+                    minimumValue: 0
+                    maximumValue: 1
+                    decimals: 2
+                    value: 0.5
+                }
             }
 
             Column {
@@ -241,8 +263,11 @@ Window {
                         clickX = mouseX;
                         clickY = mouseY;
     
-                        if (parent.curTool == "Pen" || parent.curTool == "SmartBrush")
+                        if (parent.curTool == "Pen")
                             imageChange(parent.curTool, [clickX, clickY, redInput.text, greenInput.text, blueInput.text, alphaInput.text]);
+                        if (parent.curTool == "SmartBrush")
+                            imageChange(parent.curTool, [clickX, clickY, redInput.text, greenInput.text,
+                                                         blueInput.text, alphaInput.text, smartBrushSens.value]);
                     }
     
                 }

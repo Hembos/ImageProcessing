@@ -8,13 +8,13 @@
 class SmartBrush
 {
 private:
-    const double SENSITIVITY = 0.3;
     const double ALPHA = 0.9;
     const int ITERATIONS_NUM = 100;
     const double DX = 0.05;
     const double CURVATURE_EPSILON = 1e-10;
     const int INITIAL_RADIUS = 3;
 
+    float sensitivity = 0.3;
     int radius = 7;
 
     int sizeX;

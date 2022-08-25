@@ -18,6 +18,7 @@ void SmartRefinement::execSmartBrush(const QStringList &params, QImage& image, c
 
 void SmartRefinement::execChanVese(const QStringList &params, QImage &image, const QImage &originalImage, const QImage &filteredImage)
 {
+    chanVese.setSensitivity(params[4].toFloat());
     chanVese.exec(mask, filteredImage);
 
     QColor color(params[0].toInt(), params[1].toInt(), params[2].toInt(), params[3].toInt());

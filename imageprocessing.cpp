@@ -39,12 +39,14 @@ QImage ImageProcessing::getFilteredImage()
 
 void ImageProcessing::process(QString tool, QStringList params)
 {
-    tools.execTool(tool, params, filters.getFilteredImage(), originalImage, zoom.getZoomValue(), QPoint(hand.getOffsetX(), hand.getOffsetY()));
+    if (!originalImage.isNull())
+        tools.execTool(tool, params, filters.getFilteredImage(), originalImage, zoom.getZoomValue(), QPoint(hand.getOffsetX(), hand.getOffsetY()));
 }
 
 void ImageProcessing::applyFilter(QString filter)
 {
-    filters.exec(filter);
+    if (!originalImage.isNull())
+        filters.exec(filter);
 }
 
 void ImageProcessing::saveImage()

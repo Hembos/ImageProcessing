@@ -31,6 +31,8 @@ public:
 
     void exec(std::unordered_set<MaskPoint, MaskPoint::HashFunction>& resMask, const QImage& originalImage);
 
+    void setSensitivity(const double& newSensitivity);
+
 private:
     double calculateAverageIntensity(std::unordered_set<MaskPoint, MaskPoint::HashFunction>& resMask, const Matrix<double>& intensities);
 

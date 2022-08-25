@@ -10,7 +10,6 @@ ChanVese::ChanVese()
 void ChanVese::exec(std::unordered_set<MaskPoint, MaskPoint::HashFunction> &resMask, const QImage &originalImage)
 {
     //Пока без геодезического расстояния, так как нам нужно выделять все
-
     sizeX = originalImage.width();
     sizeY = originalImage.height();
 
@@ -69,6 +68,11 @@ void ChanVese::exec(std::unordered_set<MaskPoint, MaskPoint::HashFunction> &resM
                 resMask.insert(MaskPoint(j, i));
         }
     }
+}
+
+void ChanVese::setSensitivity(const double &newSensitivity)
+{
+    sensitivity_ = newSensitivity;
 }
 
 double ChanVese::calculateAverageIntensity(std::unordered_set<MaskPoint, MaskPoint::HashFunction> &resMask, const Matrix<double>& intensities)
