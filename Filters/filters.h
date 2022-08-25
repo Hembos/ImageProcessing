@@ -17,6 +17,7 @@ private:
 
     QImage filteredImage;
 
+
     enum class FilterType
     {
         BORDER_HIGHLIGHT,
@@ -25,6 +26,8 @@ private:
         MEAN,
         NONE
     };
+
+    std::vector<FilterType> appliedFilters;
 
     FilterType getFilterType(QString filter);
 

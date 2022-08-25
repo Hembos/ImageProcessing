@@ -25,6 +25,11 @@ void Filters::exec(QString filter)
 {
     FilterType type = getFilterType(filter);
 
+    if (std::find(appliedFilters.begin(), appliedFilters.end(), type) != appliedFilters.end())
+        return;
+
+    appliedFilters.push_back(type);
+
     int sizeX = filteredImage.width();
     int sizeY = filteredImage.height();
 
