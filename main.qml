@@ -32,7 +32,8 @@ Window {
                            imageCapture.source = "image://imageProvider//" + cleanPath;
                            if (showFilteredImage.checked)
                                filteredImage.source = "image://imageProvider/filteredImage?" + Math.random();
-                       }
+                    }
+                    nameFilters: ["Image Files (*.jpg *.png)"]
                 }
             }
 
@@ -231,7 +232,8 @@ Window {
                         if (parent.curTool == "Hand") {
                             imageProcessing.shift(["offsetY", clickY - mouseY]);
                             imageCapture.source = "image://imageProvider/imageChanged?" + Math.random();
-                            filteredImage.source = "image://imageProvider/filteredImage?" + Math.random();
+                            if (showFilteredImage.checked)
+                                filteredImage.source = "image://imageProvider/filteredImage?" + Math.random();
                         }
                     }
     
