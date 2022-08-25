@@ -29,7 +29,7 @@ private:
 public:
     ChanVese();
 
-    void exec(const QStringList& params, std::unordered_set<MaskPoint, MaskPoint::HashFunction>& resMask, const QImage& originalImage);
+    void exec(std::unordered_set<MaskPoint, MaskPoint::HashFunction>& resMask, const QImage& originalImage);
 
 private:
     double calculateAverageIntensity(std::unordered_set<MaskPoint, MaskPoint::HashFunction>& resMask, const Matrix<double>& intensities);

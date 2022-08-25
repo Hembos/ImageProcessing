@@ -1,8 +1,6 @@
 #ifndef TOOLS_H
 #define TOOLS_H
 
-#include "zoom.h"
-#include "hand.h"
 #include "pen.h"
 #include "smartrefinement.h"
 
@@ -10,8 +8,6 @@
 
 enum class ToolType
 {
-    ZOOM,
-    HAND,
     PEN,
     SMART_BRUSH,
     CHAN_VESE,
@@ -21,8 +17,6 @@ enum class ToolType
 class Tools
 {
 private:
-    Zoom zoom;
-    Hand hand;
     Pen pen;
     SmartRefinement smartRefinement;
 
@@ -32,11 +26,9 @@ public:
 
     ToolType getToolType(const QString& tool);
 
-    QImage execTool(const QString& tool, QStringList& params, const QImage &filteredImage, const QImage& originalImage, const QSize& size);
+    void execTool(const QString& tool, QStringList& params, const QImage &filteredImage, const QImage& originalImage, const int& zoomValue, const QPoint& offset);
 
-    QImage generateNewImage(const QSize& windowSize, const QSize& originalSize);
-
-    void reset(const int& zoomValue);
+    void reset();
 
     void setEditedImage(const QImage &newEditedImage);
     const QImage &getEditedImage() const;

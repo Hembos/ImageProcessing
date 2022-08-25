@@ -7,15 +7,19 @@
 
 #include "Tools/tools.h"
 #include "Filters/filters.h"
+#include "Tools/zoom.h"
+#include "Tools/hand.h"
 
 class ImageProcessing : public QObject
 {
     Q_OBJECT
 private:
     QImage originalImage;
-    QImage windowImage;
 
     const int windowSize = 800;
+
+    Zoom zoom;
+    Hand hand;
 
     Tools tools;
     Filters filters;
@@ -27,7 +31,9 @@ public:
 
     void setOriginalImage(const QImage& image, const QString& fileName);
 
-    QImage getEditedImage();
+    QImage getShowingImage();
+
+    QImage getFilteredImage();
 
 public slots:
     void process(QString tool, QStringList params);
@@ -35,6 +41,13 @@ public slots:
     void applyFilter(QString filter);
 
     void saveImage();
+
+    void zooming(QStringList params);
+
+    void shift(QStringList params);
+
+private:
+    QImage cutRectFromImage(const QImage& image);
 };
 
 #endif // IMAGEPROCESSING_H

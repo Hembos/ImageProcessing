@@ -7,7 +7,7 @@ ChanVese::ChanVese()
 
 }
 
-void ChanVese::exec(const QStringList &params, std::unordered_set<MaskPoint, MaskPoint::HashFunction> &resMask, const QImage &originalImage)
+void ChanVese::exec(std::unordered_set<MaskPoint, MaskPoint::HashFunction> &resMask, const QImage &originalImage)
 {
     //Пока без геодезического расстояния, так как нам нужно выделять все
 

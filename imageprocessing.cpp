@@ -22,22 +22,24 @@ void ImageProcessing::setOriginalImage(const QImage& image, const QString& fileN
 
     int zoomValue = windowSize / std::min(image.width(), image.height());
 
-    tools.reset(zoomValue - 1 > 0 ? zoomValue - 1 : 1);
-
-    windowImage = tools.generateNewImage(QSize(windowSize, windowSize), image.size());
+    tools.reset();
+    zoom.reset(zoomValue > 0 ? zoomValue : 1);
+    hand.reset();
 }
 
-QImage ImageProcessing::getEditedImage()
+QImage ImageProcessing::getShowingImage()
 {
-    return windowImage;
+    return cutRectFromImage(tools.getEditedImage());
+}
+
+QImage ImageProcessing::getFilteredImage()
+{
+    return cutRectFromImage(filters.getFilteredImage());
 }
 
 void ImageProcessing::process(QString tool, QStringList params)
 {
-    QImage newImage = tools.execTool(tool, params, filters.getFilteredImage(), originalImage, QSize(windowSize, windowSize));
-
-    if (!newImage.isNull())
-        windowImage = newImage;
+    tools.execTool(tool, params, filters.getFilteredImage(), originalImage, zoom.getZoomValue(), QPoint(hand.getOffsetX(), hand.getOffsetY()));
 }
 
 void ImageProcessing::applyFilter(QString filter)
@@ -59,4 +61,33 @@ void ImageProcessing::saveImage()
     }
 
     tools.getEditedImage().save(newFileName);
+}
+
+void ImageProcessing::zooming(QStringList params)
+{
+    params.append(QString::number(hand.getOffsetX()));
+    params.append(QString::number(hand.getOffsetY()));
+    zoom.exec(params);
+}
+
+void ImageProcessing::shift(QStringList params)
+{
+    params.append(QString::number(zoom.getZoomValue()));
+    hand.exec(params, originalImage.size(), QSize(windowSize, windowSize));
+}
+
+QImage ImageProcessing::cutRectFromImage(const QImage &image)
+{
+    int zoomValue = zoom.getZoomValue();
+
+    hand.checkOffset(zoomValue, QSize(windowSize, windowSize), originalImage.size());
+
+    int offsetX = hand.getOffsetX();
+    int offsetY = hand.getOffsetY();
+
+    QRect rect(offsetX, offsetY, windowSize / zoomValue, windowSize / zoomValue);
+
+    QImage newImage = image.copy(rect);
+
+    return newImage.scaled(newImage.width() * zoomValue, newImage.height() * zoomValue);
 }

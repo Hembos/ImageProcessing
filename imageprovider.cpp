@@ -16,7 +16,7 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
     if (id.contains('?'))
         tokens = id.split('?');
 
-    if (tokens.size() == 0 || tokens[0] != "imageChanged")
+    if (tokens.size() == 0)
     {
         QImage image(id);
 
@@ -25,5 +25,8 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
         imageProcessing.setOriginalImage(image, id);
     }
 
-    return imageProcessing.getEditedImage();
+    if (tokens.size() != 0 && tokens[0] == "filteredImage")
+        return imageProcessing.getFilteredImage();
+
+    return imageProcessing.getShowingImage();
 }

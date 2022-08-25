@@ -30,6 +30,8 @@ Window {
                            path = path.replace(/^(file:\/{3})/,"");
                            let cleanPath = decodeURIComponent(path);
                            imageCapture.source = "image://imageProvider//" + cleanPath;
+                           if (showFilteredImage.checked)
+                               filteredImage.source = "image://imageProvider/filteredImage?" + Math.random();
                        }
                 }
             }
@@ -49,7 +51,12 @@ Window {
 
                 text: "+"
 
-                onClicked: imageChange("Zoom", ["ZoomIn"]);
+                onClicked: {
+                    imageProcessing.zooming(["ZoomIn"]);
+                    imageCapture.source = "image://imageProvider/imageChanged?" + Math.random();
+                    if (showFilteredImage.checked)
+                        filteredImage.source = "image://imageProvider/filteredImage?" + Math.random();
+                }
             }
 
             Button {
@@ -57,7 +64,12 @@ Window {
 
                 text: "-"
 
-                onClicked: imageChange("Zoom", ["ZoomOut"]);
+                onClicked: {
+                    imageProcessing.zooming(["ZoomOut"]);
+                    imageCapture.source = "image://imageProvider/imageChanged?" + Math.random();
+                    if (showFilteredImage.checked)
+                        filteredImage.source = "image://imageProvider/filteredImage?" + Math.random();
+                }
             }
 
             Button {
@@ -118,80 +130,126 @@ Window {
                 onClicked: imageChange("ChanVese", [redInput.text, greenInput.text, blueInput.text, alphaInput.text])
             }
 
-            Button {
-                id: borderHighlightFilter
+            Column {
+                Button {
+                    id: borderHighlightFilter
 
-                text: "border"
+                    text: "border"
 
-                onClicked: applyFilter("Border")
+                    onClicked: applyFilter("Border")
+                }
+
+                Button {
+                    id: medianFilter
+
+                    text: "median"
+
+                    onClicked: applyFilter("Median")
+                }
+
+                Button {
+                    id: gaussFilter
+
+                    text: "gauss"
+
+                    onClicked: applyFilter("Gauss")
+                }
+
+                Button {
+                    id: meanFilter
+
+                    text: "mean"
+
+                    onClicked: applyFilter("Mean")
+                }
             }
 
-            Button {
-                id: medianFilter
+            CheckBox {
+                id: showFilteredImage
+                text: "showFilters"
+                checked: false
 
-                text: "median"
-
-                onClicked: applyFilter("Median")
-            }
-
-            Button {
-                id: gaussFilter
-
-                text: "gauss"
-
-                onClicked: applyFilter("Gauss")
-            }
-
-            Button {
-                id: meanFilter
-
-                text: "mean"
-
-                onClicked: applyFilter("Mean")
+                onCheckedStateChanged: {
+                    switch (checkedState) {
+                        case Qt.Unchecked:
+                            filteredImage.source = "";
+                            break;
+                        case Qt.Checked:
+                            filteredImage.source = "image://imageProvider/filteredImage?" + Math.random();
+                            break;
+                        default:
+                            break;
+                    }
+                }
             }
         }
 
-        Image {
-            id: imageCapture
-            source: ""
+        Row {
+            spacing: 20
 
-            property string curTool
-
-            WheelHandler {
-                onWheel: (wheel) => {
-                    if (wheel.angleDelta.y > 0)
-                        imageChange("Zoom", ["ZoomIn"]);
-                    else if (wheel.angleDelta.y < 0)
-                        imageChange("Zoom", ["ZoomOut"]);
-                 }
+            Image {
+                id: imageCapture
+                source: ""
+    
+                property string curTool
+    
+                WheelHandler {
+                    onWheel: (wheel) => {
+                        if (wheel.angleDelta.y > 0) {
+                            imageProcessing.zooming(["ZoomIn"]);
+                            imageCapture.source = "image://imageProvider/imageChanged?" + Math.random();
+                            if (showFilteredImage.checked)
+                                filteredImage.source = "image://imageProvider/filteredImage?" + Math.random();
+                        }
+                        else if (wheel.angleDelta.y < 0){
+                            imageProcessing.zooming(["ZoomOut"]);
+                            imageCapture.source = "image://imageProvider/imageChanged?" + Math.random();
+                            if (showFilteredImage.checked)
+                                filteredImage.source = "image://imageProvider/filteredImage?" + Math.random();
+                        }
+                     }
+                }
+    
+                MouseArea {
+                    id: imageMouseArea
+    
+                    anchors.fill: parent
+    
+                    property int clickX: 0
+                    property int clickY: 0
+    
+                    onMouseXChanged: {
+                        if (parent.curTool == "Hand") {
+                            imageProcessing.shift(["offsetX", clickX - mouseX]);
+                            imageCapture.source = "image://imageProvider/imageChanged?" + Math.random();
+                            if (showFilteredImage.checked)
+                                filteredImage.source = "image://imageProvider/filteredImage?" + Math.random();
+                        }
+    
+                    }
+                    onMouseYChanged: {
+                        if (parent.curTool == "Hand") {
+                            imageProcessing.shift(["offsetY", clickY - mouseY]);
+                            imageCapture.source = "image://imageProvider/imageChanged?" + Math.random();
+                            filteredImage.source = "image://imageProvider/filteredImage?" + Math.random();
+                        }
+                    }
+    
+                    onPressed: {
+                        clickX = mouseX;
+                        clickY = mouseY;
+    
+                        if (parent.curTool == "Pen" || parent.curTool == "SmartBrush")
+                            imageChange(parent.curTool, [clickX, clickY, redInput.text, greenInput.text, blueInput.text, alphaInput.text]);
+                    }
+    
+                }
             }
 
-            MouseArea {
-                id: imageMouseArea
-
-                anchors.fill: parent
-
-                property int clickX: 0
-                property int clickY: 0
-
-                onMouseXChanged: {
-                    if (parent.curTool == "Hand")
-                        imageChange(parent.curTool, ["offsetX", clickX - mouseX]);
-
-                }
-                onMouseYChanged: {
-                    if (parent.curTool == "Hand")
-                        imageChange(parent.curTool, ["offsetY", clickY - mouseY]);
-                }
-
-                onPressed: {
-                    clickX = mouseX;
-                    clickY = mouseY;
-
-                    if (parent.curTool == "Pen" || parent.curTool == "SmartBrush")
-                        imageChange(parent.curTool, [clickX, clickY, redInput.text, greenInput.text, blueInput.text, alphaInput.text]);
-                }
-
+            Image {
+                id: filteredImage
+                source: ""
+                visible: true
             }
         }
     }
@@ -211,7 +269,8 @@ Window {
         console.time("Filter applying");
         imageProcessing.applyFilter(filter);
         console.timeEnd("Filter applying");
-        imageCapture.source = "image://imageProvider/imageChanged?" + Math.random();
+        if (showFilteredImage.checked)
+            filteredImage.source = "image://imageProvider/filteredImage?" + Math.random();
     }
 }
 
