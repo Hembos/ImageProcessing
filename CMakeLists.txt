@@ -11,6 +11,8 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+make_directory("images")
+
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Core Quick REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Quick REQUIRED)
 
@@ -23,7 +25,6 @@ set(PROJECT_SOURCES
         Tools/hand.h Tools/hand.cpp
         Tools/pen.h Tools/pen.cpp
         Tools/smartbrush.h Tools/smartbrush.cpp
-        Tools/smartrefinement.h Tools/smartrefinement.cpp
         Tools/chanvese.h Tools/chanvese.cpp
         Filters/filters.h Filters/filters.cpp
         Filters/borderhighlight.h Filters/borderhighlight.cpp

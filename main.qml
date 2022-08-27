@@ -42,7 +42,13 @@ Window {
 
                 text: "save"
 
-                onClicked: imageProcessing.saveImage();
+                onClicked: imageProcessing.saveImage(tagPath.text);
+            }
+
+            TextField {
+                id: tagPath
+                placeholderText: "tag"
+                text: ""
             }
         }
 

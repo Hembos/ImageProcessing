@@ -37,6 +37,8 @@ public:
     void exec(QString filter);
     const QImage &getFilteredImage() const;
     void setFilteredImage(const QImage &newFilteredImage);
+
+    void reset();
 };
 
 #endif

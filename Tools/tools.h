@@ -2,7 +2,10 @@
 #define TOOLS_H
 
 #include "pen.h"
-#include "smartrefinement.h"
+
+#include "Tools/smartbrush.h"
+#include "Tools/chanvese.h"
+#include <unordered_set>
 
 #include <QImage>
 
@@ -18,9 +21,16 @@ class Tools
 {
 private:
     Pen pen;
-    SmartRefinement smartRefinement;
+
+    SmartBrush smartBrush;
+
+    ChanVese chanVese;
 
     QImage editedImage;
+
+    std::unordered_set<MaskPoint, MaskPoint::HashFunction> mask;
+
+    void drawMask(const QColor& color, const QImage &originalImage);
 public:
     Tools();
 

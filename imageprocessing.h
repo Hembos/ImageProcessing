@@ -40,7 +40,7 @@ public slots:
 
     void applyFilter(QString filter);
 
-    void saveImage();
+    void saveImage(const QString& tag);
 
     void zooming(QStringList params);
 

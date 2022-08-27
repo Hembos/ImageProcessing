@@ -1,5 +1,6 @@
 #include "imageprocessing.h"
 #include <QDebug>
+#include <QDir>
 
 ImageProcessing::ImageProcessing(QObject *parent) : QObject(parent)
 {
@@ -13,7 +14,8 @@ ImageProcessing::~ImageProcessing()
 
 void ImageProcessing::setOriginalImage(const QImage& image, const QString& fileName)
 {
-    this->fileName = fileName;
+    QStringList tokens = fileName.split('/');
+    this->fileName = tokens[tokens.size() - 1];
 
     tools.setEditedImage(image);
     filters.setFilteredImage(image);
@@ -25,6 +27,7 @@ void ImageProcessing::setOriginalImage(const QImage& image, const QString& fileN
     tools.reset();
     zoom.reset(zoomValue > 0 ? zoomValue : 1);
     hand.reset();
+    filters.reset();
 }
 
 QImage ImageProcessing::getShowingImage()
@@ -49,20 +52,14 @@ void ImageProcessing::applyFilter(QString filter)
         filters.exec(filter);
 }
 
-void ImageProcessing::saveImage()
+void ImageProcessing::saveImage(const QString& tag)
 {
-    QStringList tokens = fileName.split('.');
+    QString filePath = "./images/" + tag + "/";
+    if (!QDir(filePath).exists())
+        QDir().mkdir(filePath);
 
-    tokens.insert(tokens.end() - 1, "Edited.");
-
-    QString newFileName{""};
-
-    for (const auto& token : tokens)
-    {
-        newFileName += token;
-    }
-
-    tools.getEditedImage().save(newFileName);
+    QImage image = tools.getEditedImage();
+    image.save(filePath + fileName);
 }
 
 void ImageProcessing::zooming(QStringList params)

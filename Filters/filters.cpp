@@ -75,3 +75,8 @@ void Filters::setFilteredImage(const QImage &newFilteredImage)
 {
     filteredImage = newFilteredImage;
 }
+
+void Filters::reset()
+{
+    appliedFilters.clear();
+}
