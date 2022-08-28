@@ -146,7 +146,10 @@ Window {
 
                     text: "chanVese"
 
-                    onClicked: imageChange("ChanVese", [redInput.text, greenInput.text, blueInput.text, alphaInput.text, chanVeseSens.value])
+                    onClicked: {
+                        let mode = chanVeseMode.checked ? "ChanVeseAnchors" : "ChanVese";
+                        imageChange(mode, [redInput.text, greenInput.text, blueInput.text, alphaInput.text, chanVeseSens.value])
+                    }
                 }
 
                 SpinBox {
@@ -156,6 +159,12 @@ Window {
                     maximumValue: 1
                     decimals: 2
                     value: 0.5
+                }
+
+                CheckBox {
+                    id: chanVeseMode
+                    text: "anchorsMode"
+                    checked: false
                 }
             }
 
@@ -191,6 +200,14 @@ Window {
 
                     onClicked: applyFilter("Mean")
                 }
+            }
+
+            Button {
+                id: removeRegionButton
+
+                text: "removeRegion"
+
+                onClicked: toolChange("RemoveRegion")
             }
 
             CheckBox {
@@ -274,6 +291,8 @@ Window {
                         if (parent.curTool == "SmartBrush")
                             imageChange(parent.curTool, [clickX, clickY, redInput.text, greenInput.text,
                                                          blueInput.text, alphaInput.text, smartBrushSens.value]);
+                        if (parent.curTool == "RemoveRegion")
+                            imageChange(parent.curTool, [clickX, clickY]);
                     }
     
                 }

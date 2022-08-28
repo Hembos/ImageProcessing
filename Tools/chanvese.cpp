@@ -9,7 +9,6 @@ ChanVese::ChanVese()
 
 void ChanVese::exec(std::unordered_set<MaskPoint, MaskPoint::HashFunction> &resMask, const QImage &originalImage)
 {
-    //Пока без геодезического расстояния, так как нам нужно выделять все
     sizeX = originalImage.width();
     sizeY = originalImage.height();
 
@@ -25,38 +24,9 @@ void ChanVese::exec(std::unordered_set<MaskPoint, MaskPoint::HashFunction> &resM
 
     Matrix<double> phiMatrix(sizeY, sizeX, [mask](int i, int j){
         return mask.getValue(i, j) ? 1 : -1.;
-//        return sin(M_PI / 5 * j) * sin(M_PI / 5 * i);
     });
 
-    double c = calculateAverageIntensity(resMask, intensities);
-
-    double gamma[2] = {0, 0};
-
-    calculateGamma(c, intensities, gamma);
-
-    double rMax = 0;
-
-    Matrix<double> rMatrix(sizeY, sizeX, [intensities, c, this, gamma, &rMax](int i, int j){
-        double rVal = DF2SS * (f1(j, i, c, intensities) - f2(j, i, c, intensities, gamma));
-
-        rMax = std::max(fabs(rVal), rMax);
-
-        return rVal;
-    });
-
-    rMatrix.forEach([rMatrix, rMax](int i, int j){
-       return rMatrix.getValue(i, j) / rMax;
-    });
-
-    for (int iter = 0; iter < ITERATIONS_NUM; iter++)
-    {
-        double tol = updatePhi(phiMatrix, rMatrix);
-
-//        if (tol <= TOLERANCE)
-//            break;
-
-        std::cout << "iter = " << iter << " tol = " << tol << std::endl;
-    }
+    run(mask, intensities, resMask, phiMatrix);
 
     resMask.clear();
 
@@ -70,9 +40,19 @@ void ChanVese::exec(std::unordered_set<MaskPoint, MaskPoint::HashFunction> &resM
     }
 }
 
+void ChanVese::execWithAnchors(std::unordered_set<MaskPoint, MaskPoint::HashFunction> &resMask, const QImage &originalImage)
+{
+
+}
+
 void ChanVese::setSensitivity(const double &newSensitivity)
 {
     sensitivity_ = newSensitivity;
+}
+
+void ChanVese::addAnchorPoint(MaskPoint point)
+{
+    anchorPoints.insert(point);
 }
 
 double ChanVese::calculateAverageIntensity(std::unordered_set<MaskPoint, MaskPoint::HashFunction> &resMask, const Matrix<double>& intensities)
@@ -203,4 +183,37 @@ double ChanVese::f2(int x, int y, const double &c, const Matrix<double> &intensi
     else if (z < c)
         return 1 + (z - c) / gamma[0];
     return 1 - (z - c) / gamma[1];
+}
+
+void ChanVese::run(Matrix<bool>& mask, const Matrix<double>& intensities, std::unordered_set<MaskPoint, MaskPoint::HashFunction> &resMask, Matrix<double>& phiMatrix)
+{
+    double c = calculateAverageIntensity(resMask, intensities);
+
+    double gamma[2] = {0, 0};
+
+    calculateGamma(c, intensities, gamma);
+
+    double rMax = 0;
+
+    Matrix<double> rMatrix(sizeY, sizeX, [intensities, c, this, gamma, &rMax](int i, int j){
+        double rVal = DF2SS * (f1(j, i, c, intensities) - f2(j, i, c, intensities, gamma));
+
+        rMax = std::max(fabs(rVal), rMax);
+
+        return rVal;
+    });
+
+    rMatrix.forEach([rMatrix, rMax](int i, int j){
+       return rMatrix.getValue(i, j) / rMax;
+    });
+
+    for (int iter = 0; iter < ITERATIONS_NUM; iter++)
+    {
+        double tol = updatePhi(phiMatrix, rMatrix);
+
+//        if (tol <= TOLERANCE)
+//            break;
+
+        std::cout << "iter = " << iter << " tol = " << tol << std::endl;
+    }
 }

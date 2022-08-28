@@ -12,8 +12,6 @@ private:
     const int ITERATIONS_NUM = 100;
     const double ETA = 1e-8;
     const double MU = 0.1;
-//    const double LAM1 = 1;
-//    const double LAM2 = 0.5;
     const double TOLERANCE = 1e-3;
     const double DT = 1;
     const double EPS = 1;
@@ -26,13 +24,17 @@ private:
     int sizeX;
     int sizeY;
 
+    std::unordered_set<MaskPoint, MaskPoint::HashFunction> anchorPoints;
+
 public:
     ChanVese();
 
     void exec(std::unordered_set<MaskPoint, MaskPoint::HashFunction>& resMask, const QImage& originalImage);
+    void execWithAnchors(std::unordered_set<MaskPoint, MaskPoint::HashFunction>& resMask, const QImage& originalImage);
 
     void setSensitivity(const double& newSensitivity);
 
+    void addAnchorPoint(MaskPoint point);
 private:
     double calculateAverageIntensity(std::unordered_set<MaskPoint, MaskPoint::HashFunction>& resMask, const Matrix<double>& intensities);
 
@@ -45,6 +47,8 @@ private:
 
     double f1(int x, int y, const double& c, const Matrix<double>& intensities);
     double f2(int x, int y, const double& c, const Matrix<double>& intensities, const double* gamma);
+
+    void run(Matrix<bool>& mask, const Matrix<double>& intensities, std::unordered_set<MaskPoint, MaskPoint::HashFunction> &resMask, Matrix<double>& phiMatrix);
 };
 
 template<size_t bucketsNumber>

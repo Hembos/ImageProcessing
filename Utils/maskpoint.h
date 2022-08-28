@@ -1,4 +1,4 @@
-#ifndef MASKPOINT_H
+    #ifndef MASKPOINT_H
 #define MASKPOINT_H
 
 #include <unordered_set>

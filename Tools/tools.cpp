@@ -3,6 +3,7 @@
 #include <QDebug>
 
 #include <QPainter>
+#include <queue>
 
 void Tools::setEditedImage(const QImage &newEditedImage)
 {
@@ -27,6 +28,10 @@ ToolType Tools::getToolType(const QString &tool)
         return ToolType::SMART_BRUSH;
     if (tool == "ChanVese")
         return ToolType::CHAN_VESE;
+    if (tool == "ChanVeseAnchors")
+        return ToolType::CHAN_VESE_ANCHORS_MODE;
+    if (tool == "RemoveRegion")
+        return ToolType::REMOVE_REGION;
 
     return ToolType::NONE;
 }
@@ -36,8 +41,16 @@ void Tools::execTool(const QString &tool, QStringList &params, const QImage &fil
     ToolType type = getToolType(tool);
     QColor color;
 
+    int x = params[0].toInt() / zoomValue + offset.x();
+    int y = params[1].toInt() / zoomValue + offset.y();
+
     switch (type)
     {
+    case ToolType::REMOVE_REGION:
+        removeRegion(originalImage, x, y);
+        break;
+    case ToolType::CHAN_VESE_ANCHORS_MODE:
+        break;
     case ToolType::CHAN_VESE:
         chanVese.setSensitivity(params[4].toFloat());
         chanVese.exec(mask, filteredImage);
@@ -47,8 +60,10 @@ void Tools::execTool(const QString &tool, QStringList &params, const QImage &fil
         drawMask(color, originalImage);
         break;
     case ToolType::SMART_BRUSH:
-        params[0] = QString::number(params[0].toInt() / zoomValue + offset.x());
-        params[1] = QString::number(params[1].toInt() / zoomValue + offset.y());
+        chanVese.addAnchorPoint(MaskPoint(x, y));
+
+        params[0] = QString::number(x);
+        params[1] = QString::number(y);
         smartBrush.exec(params, mask, filteredImage);
 
         color.setRgba(qRgba(params[2].toInt(), params[3].toInt(), params[4].toInt(), params[5].toInt()));
@@ -57,15 +72,23 @@ void Tools::execTool(const QString &tool, QStringList &params, const QImage &fil
         break;
     case ToolType::PEN:
     {
-        int x = params[0].toInt() / zoomValue + offset.x();
-        int y = params[1].toInt() / zoomValue + offset.y();
-        mask.insert(MaskPoint(x, y));
-        params[0] = QString::number(x);
-        params[1] = QString::number(y);
-        pen.exec(params, editedImage, originalImage);
+        if (mask.find(MaskPoint(x, y)) == mask.end())
+        {
+            mask.insert(MaskPoint(x, y));
+            params[0] = QString::number(x);
+            params[1] = QString::number(y);
+            pen.exec(params, editedImage, originalImage);
+        }
+        else
+        {
+            mask.erase(MaskPoint(x, y));
+            editedImage.setPixel(x, y, originalImage.pixel(x, y));
+        }
         break;
     }
     case ToolType::NONE:
+        break;
+    default:
         break;
     }
 }
@@ -91,4 +114,30 @@ void Tools::drawMask(const QColor& color, const QImage &originalImage)
     }
 
     painter.end();
+}
+
+void Tools::removeRegion(const QImage &originalImage, int x, int y)
+{
+    std::queue<MaskPoint> queue;
+
+    const std::vector<MaskPoint> neighbors = { { 1, 0 },{ 0, 1 },{ -1, 0 },{ 0, -1 } };
+
+    queue.push({x, y});
+    mask.erase({x, y});
+
+    while (!queue.empty())
+    {
+        MaskPoint curPoint = queue.front();
+        queue.pop();
+        editedImage.setPixel(curPoint.x, curPoint.y, originalImage.pixel(curPoint.x, curPoint.y));
+        for (const auto& neighbor : neighbors)
+        {
+            MaskPoint tmp = {neighbor.x + curPoint.x, neighbor.y + curPoint.y};
+            if (mask.find(tmp) != mask.end())
+            {
+                mask.erase(tmp);
+                queue.push(tmp);
+            }
+        }
+    }
 }

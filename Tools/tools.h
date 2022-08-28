@@ -14,6 +14,8 @@ enum class ToolType
     PEN,
     SMART_BRUSH,
     CHAN_VESE,
+    CHAN_VESE_ANCHORS_MODE,
+    REMOVE_REGION,
     NONE
 };
 
@@ -31,6 +33,8 @@ private:
     std::unordered_set<MaskPoint, MaskPoint::HashFunction> mask;
 
     void drawMask(const QColor& color, const QImage &originalImage);
+
+    void removeRegion(const QImage &originalImage, int x, int y);
 public:
     Tools();
 
