@@ -4,6 +4,11 @@
 #include <cmath>
 #include <limits>
 
+int SmartBrush::getRadius() const
+{
+    return radius;
+}
+
 SmartBrush::SmartBrush()
 {
 

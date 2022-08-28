@@ -50,6 +50,12 @@ void Tools::execTool(const QString &tool, QStringList &params, const QImage &fil
         removeRegion(originalImage, x, y);
         break;
     case ToolType::CHAN_VESE_ANCHORS_MODE:
+        chanVese.setSensitivity(params[4].toFloat());
+        chanVese.execWithAnchors(mask, filteredImage, smartBrush.getRadius());
+
+        color.setRgba(qRgba(params[0].toInt(), params[1].toInt(), params[2].toInt(), params[3].toInt()));
+
+        drawMask(color, originalImage);
         break;
     case ToolType::CHAN_VESE:
         chanVese.setSensitivity(params[4].toFloat());
@@ -130,6 +136,7 @@ void Tools::removeRegion(const QImage &originalImage, int x, int y)
         MaskPoint curPoint = queue.front();
         queue.pop();
         editedImage.setPixel(curPoint.x, curPoint.y, originalImage.pixel(curPoint.x, curPoint.y));
+        chanVese.removeAnchorPoint(curPoint);
         for (const auto& neighbor : neighbors)
         {
             MaskPoint tmp = {neighbor.x + curPoint.x, neighbor.y + curPoint.y};
@@ -137,6 +144,7 @@ void Tools::removeRegion(const QImage &originalImage, int x, int y)
             {
                 mask.erase(tmp);
                 queue.push(tmp);
+
             }
         }
     }

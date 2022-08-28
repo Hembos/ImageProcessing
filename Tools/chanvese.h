@@ -30,11 +30,13 @@ public:
     ChanVese();
 
     void exec(std::unordered_set<MaskPoint, MaskPoint::HashFunction>& resMask, const QImage& originalImage);
-    void execWithAnchors(std::unordered_set<MaskPoint, MaskPoint::HashFunction>& resMask, const QImage& originalImage);
+    void execWithAnchors(std::unordered_set<MaskPoint, MaskPoint::HashFunction>& resMask, const QImage& originalImage, const int& radius);
 
     void setSensitivity(const double& newSensitivity);
 
     void addAnchorPoint(MaskPoint point);
+
+    void removeAnchorPoint(MaskPoint point);
 private:
     double calculateAverageIntensity(std::unordered_set<MaskPoint, MaskPoint::HashFunction>& resMask, const Matrix<double>& intensities);
 

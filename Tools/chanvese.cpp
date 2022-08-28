@@ -40,9 +40,56 @@ void ChanVese::exec(std::unordered_set<MaskPoint, MaskPoint::HashFunction> &resM
     }
 }
 
-void ChanVese::execWithAnchors(std::unordered_set<MaskPoint, MaskPoint::HashFunction> &resMask, const QImage &originalImage)
+void ChanVese::execWithAnchors(std::unordered_set<MaskPoint, MaskPoint::HashFunction> &resMask, const QImage &originalImage, const int& radius)
 {
+    if (anchorPoints.empty())
+        return;
 
+    int width = originalImage.width();
+    int height = originalImage.height();
+
+    MaskPoint leftUpCorner(width, height);
+    MaskPoint rightDownCorner(0, 0);
+
+    for (const auto& anchor : anchorPoints)
+    {
+        leftUpCorner.x = std::min(leftUpCorner.x, std::max(anchor.x - radius, 0));
+        leftUpCorner.y = std::min(leftUpCorner.y, std::max(anchor.y - radius, 0));
+
+        rightDownCorner.x = std::max(rightDownCorner.x, std::min(anchor.x + radius, width));
+        rightDownCorner.y = std::max(rightDownCorner.y, std::min(anchor.y + radius, height));
+    }
+
+    sizeX = rightDownCorner.x - leftUpCorner.x + 1;
+    sizeY = rightDownCorner.y - leftUpCorner.y + 1;
+
+    Matrix<bool> mask(sizeY, sizeX);
+    for (const auto& point : resMask)
+    {
+        if (point.x >= leftUpCorner.x && point.x <= rightDownCorner.x && point.y >= leftUpCorner.y && point.y <= rightDownCorner.y)
+            mask.setValue(point.y - leftUpCorner.y, point.x - leftUpCorner.x, true);
+    }
+
+    Matrix<double> intensities(sizeY, sizeX, [originalImage, leftUpCorner](int i, int j){
+        return originalImage.pixelColor(j + leftUpCorner.x, i + leftUpCorner.y).red() / 255.0;
+    });
+
+    Matrix<double> phiMatrix(sizeY, sizeX, [mask](int i, int j){
+        return mask.getValue(i, j) ? 1 : -1.;
+    });
+
+    run(mask, intensities, resMask, phiMatrix);
+
+    resMask.clear();
+
+    for (int i = 0; i < sizeY; i++)
+    {
+        for (int j = 0; j < sizeX; j++)
+        {
+            if (phiMatrix.getValue(i, j) >= 1e-8)
+                resMask.insert(MaskPoint(j + leftUpCorner.x, i + leftUpCorner.y));
+        }
+    }
 }
 
 void ChanVese::setSensitivity(const double &newSensitivity)
@@ -53,6 +100,12 @@ void ChanVese::setSensitivity(const double &newSensitivity)
 void ChanVese::addAnchorPoint(MaskPoint point)
 {
     anchorPoints.insert(point);
+}
+
+void ChanVese::removeAnchorPoint(MaskPoint point)
+{
+    if (anchorPoints.find(point) != anchorPoints.end())
+        anchorPoints.erase(point);
 }
 
 double ChanVese::calculateAverageIntensity(std::unordered_set<MaskPoint, MaskPoint::HashFunction> &resMask, const Matrix<double>& intensities)

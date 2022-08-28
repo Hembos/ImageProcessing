@@ -24,6 +24,8 @@ public:
 
     void exec(const QStringList& params, std::unordered_set<MaskPoint, MaskPoint::HashFunction>& mask, const QImage& originalImage);
 
+    int getRadius() const;
+
 private:
     Matrix<double> calcDensityField(const Matrix<double>& intensities);
 
