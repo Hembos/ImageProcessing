@@ -102,10 +102,12 @@ void Tools::execTool(const QString &tool, QStringList &params, const QImage &fil
 void Tools::reset()
 {
     mask.clear();
+    chanVese.reset();
 }
 
 void Tools::drawMask(const QColor& color, const QImage &originalImage)
 {
+    editedImage = originalImage;
     QPainter painter(&editedImage);
     painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
 

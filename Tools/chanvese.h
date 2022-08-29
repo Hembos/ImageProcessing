@@ -37,6 +37,8 @@ public:
     void addAnchorPoint(MaskPoint point);
 
     void removeAnchorPoint(MaskPoint point);
+
+    void reset();
 private:
     double calculateAverageIntensity(std::unordered_set<MaskPoint, MaskPoint::HashFunction>& resMask, const Matrix<double>& intensities);
 

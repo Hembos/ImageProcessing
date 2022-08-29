@@ -63,12 +63,17 @@ void ChanVese::execWithAnchors(std::unordered_set<MaskPoint, MaskPoint::HashFunc
     sizeX = rightDownCorner.x - leftUpCorner.x + 1;
     sizeY = rightDownCorner.y - leftUpCorner.y + 1;
 
+    std::unordered_set<MaskPoint, MaskPoint::HashFunction> tmp;
     Matrix<bool> mask(sizeY, sizeX);
     for (const auto& point : resMask)
     {
         if (point.x >= leftUpCorner.x && point.x <= rightDownCorner.x && point.y >= leftUpCorner.y && point.y <= rightDownCorner.y)
+        {
+            tmp.insert({point.y - leftUpCorner.y, point.x - leftUpCorner.x});
             mask.setValue(point.y - leftUpCorner.y, point.x - leftUpCorner.x, true);
+        }
     }
+    resMask = tmp;
 
     Matrix<double> intensities(sizeY, sizeX, [originalImage, leftUpCorner](int i, int j){
         return originalImage.pixelColor(j + leftUpCorner.x, i + leftUpCorner.y).red() / 255.0;
@@ -108,8 +113,13 @@ void ChanVese::removeAnchorPoint(MaskPoint point)
         anchorPoints.erase(point);
 }
 
-double ChanVese::calculateAverageIntensity(std::unordered_set<MaskPoint, MaskPoint::HashFunction> &resMask, const Matrix<double>& intensities)
+void ChanVese::reset()
 {
+    anchorPoints.clear();
+}
+
+double ChanVese::calculateAverageIntensity(std::unordered_set<MaskPoint, MaskPoint::HashFunction> &resMask, const Matrix<double>& intensities)
+{    
     double sum = 0;
 
     for (const auto& point : resMask)
@@ -241,6 +251,7 @@ double ChanVese::f2(int x, int y, const double &c, const Matrix<double> &intensi
 void ChanVese::run(Matrix<bool>& mask, const Matrix<double>& intensities, std::unordered_set<MaskPoint, MaskPoint::HashFunction> &resMask, Matrix<double>& phiMatrix)
 {
     double c = calculateAverageIntensity(resMask, intensities);
+    std::cout << "average " << c << std::endl;
 
     double gamma[2] = {0, 0};
 
